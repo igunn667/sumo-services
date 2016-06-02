@@ -1,5 +1,6 @@
 package com.sumo.rest;
 
+import com.sumo.model.SumoQueryRequest;
 import com.sumologic.client.SumoLogicClient;
 import com.sumologic.client.collectors.model.GetCollectorsResponse;
 import com.sumologic.client.model.SearchRequest;
@@ -18,6 +19,7 @@ import java.nio.file.Path;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by iangunn on 5/24/16.
@@ -29,32 +31,52 @@ public class SumoRestHelper {
     private String password;
     private final String CREDETIAL_PATH = "src/main/resources/";
     private final String CREDETIAL_FILE = "credetials.txt";
+    private SumoLogicClient sumoLogicClient;
 
     @PostConstruct
-    public String test() {
+    public void readFromFileAndSetCredentials() {
         readFromFile();
+    }
 
-        SumoLogicClient client = new SumoLogicClient(username, password);
+    public SearchResponse performSearch(SumoQueryRequest sumoQueryRequest){
+        if(sumoQueryRequest.getEndtime() == null){
+            if(sumoQueryRequest.getStartTime() == null){
+                sumoQueryRequest.setStartTime(new Date());
+            }
+            return this.performSearch(sumoQueryRequest.getQueryString(), sumoQueryRequest.getStartTime());
+        }
+//        Optional<Date> endDate = Optional.of(sumoQueryRequest.getEndtime());
+        return this.performSearch(sumoQueryRequest.getQueryString(), sumoQueryRequest.getStartTime(),new Date());
+    }
+
+    public SearchResponse performSearch(String query, Date start){
+        return this.performSearch(query, start, new Date());
+    }
+
+    public SearchResponse performSearch(String query, Date start, Date end){
         SearchRequest searchRequest = new SearchRequest();
-        searchRequest.setQuery("_sourceCategory=Application/trader-services/live | parse \"InventoryPortImpl * - GetPendingItemCount found: * Ads for TransactionId: *\" as uuid, pendingcount, trans | \n" +
-                "number(pendingcount)  | max (pendingcount)");
+        searchRequest.setQuery(query);
+        searchRequest.setFromTime(start);
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.HOUR_OF_DAY, -1);
+        calendar.add(Calendar.HOUR_OF_DAY, -4);
         Date date = calendar.getTime();
         searchRequest.setFromTime(date);
-        SearchResponse searchResponse= client.search(searchRequest);
+//        if(end.isPresent()) {
+//            searchRequest.setToTime(end.get());
+//        }
+        return sumoLogicClient.search(searchRequest);
 
 
-        return "";
     }
+
+
 
 
     private void readFromFile() {
         try (BufferedReader br = new BufferedReader(new FileReader(CREDETIAL_PATH + CREDETIAL_FILE))) {
             String user = br.readLine();
             String pass = br.readLine();
-            this.username = user;
-            this.password = pass;
+            this.sumoLogicClient = new SumoLogicClient(user, pass);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
