@@ -37,7 +37,7 @@ public class ApplicationRestController {
 
         log.info("Base 64 encoded username is : " + usernanme);
         log.info("I got a request for " + sumoQueryRequest.getQueryString() + " and start time of " + sumoQueryRequest.getStartTime());
-        SearchResponse searchResponse = sumoRestHelper.performSearch(sumoQueryRequest);
+        SearchResponse searchResponse = sumoRestHelper.performSearch(sumoQueryRequest, usernanme, password);
         return new ResponseEntity<HashMap>(transformResponse(searchResponse), HttpStatus.OK);
 
     }
