@@ -7,10 +7,7 @@ import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -30,16 +27,18 @@ public class ApplicationRestController {
 
     @RequestMapping(value = "/query/", method = RequestMethod.POST)
     public ResponseEntity<HashMap> performQuery(@RequestBody SumoQueryRequest sumoQueryRequest){
-
         log.info("I got a request for " + sumoQueryRequest.getQueryString() + " and start time of " + sumoQueryRequest.getStartTime());
-
         SearchResponse searchResponse = sumoRestHelper.performSearch(sumoQueryRequest);
-
-
-
-
         return new ResponseEntity<HashMap>(transformResponse(searchResponse), HttpStatus.OK);
 
+    }
+    @RequestMapping(value = "/query/auth", method = RequestMethod.POST)
+    public ResponseEntity<HashMap> performQueryWithHeaders(@RequestHeader("username") String usernanme, @RequestHeader("password")String password, @RequestBody SumoQueryRequest sumoQueryRequest){
+
+        log.info("Base 64 encoded username is : " + usernanme);
+        log.info("I got a request for " + sumoQueryRequest.getQueryString() + " and start time of " + sumoQueryRequest.getStartTime());
+        SearchResponse searchResponse = sumoRestHelper.performSearch(sumoQueryRequest);
+        return new ResponseEntity<HashMap>(transformResponse(searchResponse), HttpStatus.OK);
 
     }
 
