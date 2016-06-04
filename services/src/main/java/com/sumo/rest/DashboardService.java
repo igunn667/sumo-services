@@ -30,9 +30,15 @@ public class DashboardService extends SumoRestHelper {
 		GetDashboardsResponse dashboards = sumoLogicClient.getDashboards(true);
 		List<DashboardVO> dashboardVOs = dashboardUtils.buildDashboards(dashboards);
 
-		dashboardVOs.parallelStream().forEach(dashboardVO ->
-				dashboardVO.getMonitors().parallelStream().forEach(monitor ->
-						monitorMap.put(monitor.getId(), monitor)));
+		dashboardVOs.parallelStream().forEach(dashboardVO -> {
+			if (dashboardVO.getMonitors() != null) {
+				dashboardVO.getMonitors().parallelStream().forEach(monitor -> {
+					if (monitor != null) {
+						monitorMap.put(monitor.getId(), monitor);
+					}
+				});
+			}
+		});
 
 		return dashboardVOs;
 	}
