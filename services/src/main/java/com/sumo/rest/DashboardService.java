@@ -1,6 +1,7 @@
 package com.sumo.rest;
 
 import com.sumo.model.dashboard.DashboardVO;
+import com.sumo.model.dashboard.Monitor;
 import com.sumo.util.DashboardUtils;
 import com.sumologic.client.SumoLogicClient;
 import com.sumologic.client.dashboard.model.GetDashboardsResponse;
@@ -17,10 +18,10 @@ public class DashboardService extends SumoRestHelper {
 	@Autowired
 	DashboardUtils dashboardUtils;
 
-	private Map<Long, DashboardVO> dashboardVOMap;
+	private Map<Long, Monitor> monitorMap;
 
 	public DashboardService() {
-		this.dashboardVOMap = new HashMap<>();
+		this.monitorMap = new HashMap<>();
 	}
 
 	@Cacheable("dashboardCache")
@@ -29,18 +30,14 @@ public class DashboardService extends SumoRestHelper {
 		GetDashboardsResponse dashboards = sumoLogicClient.getDashboards(true);
 		List<DashboardVO> dashboardVOs = dashboardUtils.buildDashboards(dashboards);
 		for (DashboardVO dashboardVO : dashboardVOs) {
-			dashboardVOMap.put(dashboardVO.getId(), dashboardVO);
+			for (Monitor monitor : dashboardVO.getMonitors()) {
+				monitorMap.put(monitor.getId(), monitor);
+			}
 		}
 		return dashboardVOs;
 	}
 
 	public String getQueryByMonitorId(long monitorId) {
-		final String[] returnQuery = new String[1];
-		dashboardVOMap.forEach((aLong, dashboardVO) -> dashboardVO.getMonitors().parallelStream().forEach(monitor -> {
-			if (monitor.getId() == monitorId) {
-				returnQuery[0] = monitor.getQuery();
-			}
-		}));
-		return returnQuery[0];
+		return monitorMap.get(monitorId).getQuery();
 	}
 }
