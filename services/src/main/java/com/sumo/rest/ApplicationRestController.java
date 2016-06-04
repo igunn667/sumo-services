@@ -31,7 +31,7 @@ public class ApplicationRestController {
     public ResponseEntity<HashMap> performQuery(@RequestBody SumoQueryRequest sumoQueryRequest){
         log.info("I got a request for " + sumoQueryRequest.getQueryString() + " and start time of " + sumoQueryRequest.getStartTime());
         SearchResponse searchResponse = sumoRestHelper.performSearch(sumoQueryRequest);
-        return new ResponseEntity<HashMap>(transformResponse(searchResponse), HttpStatus.OK);
+        return new ResponseEntity<>(transformResponse(searchResponse), HttpStatus.OK);
 
     }
     @RequestMapping(value = "/query/{requestId}", method = RequestMethod.GET)
@@ -46,28 +46,26 @@ public class ApplicationRestController {
         log.info("Base 64 encoded username is : " + usernanme);
         log.info("I got a request for " + sumoQueryRequest.getQueryString() + " and start time of " + sumoQueryRequest.getStartTime());
         SearchResponse searchResponse = sumoRestHelper.performSearch(sumoQueryRequest, usernanme, password);
-        return new ResponseEntity<HashMap>(transformResponse(searchResponse), HttpStatus.OK);
+        return new ResponseEntity<>(transformResponse(searchResponse), HttpStatus.OK);
 
     }
 
 
     @RequestMapping(value = "/query/auth/new", method = RequestMethod.POST)
-    public ResponseEntity<String> performQueryWithHeadersCache(@RequestHeader("username") String usernanme, @RequestHeader("password")String password, @RequestBody SumoQueryRequest sumoQueryRequest){
-        log.info("Base 64 encoded username is : " + usernanme);
+    public ResponseEntity<String> performQueryWithHeadersCache(@RequestHeader("username") String username, @RequestHeader("password")String password, @RequestBody SumoQueryRequest sumoQueryRequest){
+        log.info("Base 64 encoded username is : " + username);
         log.info("I got a request for " + sumoQueryRequest.getQueryString() + " and start time of " + sumoQueryRequest.getStartTime());
-        String id = sumoRestHelper.performSearchAsync(sumoQueryRequest, usernanme, password);
-        return new ResponseEntity<String>(buildUrl(id), HttpStatus.OK);
+        String id = sumoRestHelper.performSearchAsync(sumoQueryRequest, username, password);
+        return new ResponseEntity<>(buildUrl(id), HttpStatus.OK);
 
     }
 
     public HashMap<String, String> transformResponse(SearchResponse searchResponse){
         HashMap<String,String> returnMap = new HashMap<>();
         for(LogMessage message : searchResponse.getMessages()){
-            for(String s :message.getProperties().keySet()){
-                if(!returnMap.containsKey(s)){
-                    returnMap.put(s, message.getProperties().get(s));
-                }
-            }
+            message.getProperties().keySet().parallelStream()
+                    .filter(s -> !returnMap.containsKey(s))
+                    .forEach(s -> returnMap.put(s, message.getProperties().get(s)));
         }
         return returnMap;
 

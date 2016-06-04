@@ -27,11 +27,9 @@ public class SumoQueryResponse {
     public HashMap<String, String> transformResponse(SearchResponse searchResponse){
         HashMap<String,String> returnMap = new HashMap<>();
         for(LogMessage message : searchResponse.getMessages()){
-            for(String s :message.getProperties().keySet()){
-                if(!returnMap.containsKey(s)){
-                    returnMap.put(s, message.getProperties().get(s));
-                }
-            }
+            message.getProperties().keySet().parallelStream()
+                    .filter(s -> !returnMap.containsKey(s))
+                    .forEach(s -> returnMap.put(s, message.getProperties().get(s)));
         }
         return returnMap;
 

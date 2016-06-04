@@ -5,7 +5,6 @@ import com.sumo.model.SumoQueryResponse;
 import com.sumo.util.AsyncSumoCaller;
 import com.sumo.util.SumoCacheUtil;
 import com.sumologic.client.SumoLogicClient;
-import com.sumologic.client.collectors.model.GetCollectorsResponse;
 import com.sumologic.client.model.SearchRequest;
 import com.sumologic.client.model.SearchResponse;
 import lombok.Getter;
@@ -13,22 +12,14 @@ import lombok.Setter;
 import lombok.extern.java.Log;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.task.TaskExecutor;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.servlet.config.annotation.AsyncSupportConfigurer;
 
 import javax.annotation.PostConstruct;
-import javax.naming.directory.SearchResult;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.Executor;
 
 /**
  * Created by iangunn on 5/24/16.
@@ -41,8 +32,8 @@ public class SumoRestHelper {
 
     private String username;
     private String password;
-    private final String CREDETIAL_PATH = "src/main/resources/";
-    private final String CREDETIAL_FILE = "credetials.txt";
+    private final String CREDENTIAL_PATH = "src/main/resources/";
+    private final String CREDENTIAL_FILE = "credentials.txt";
     private SumoLogicClient sumoLogicClient;
 
     @Autowired
@@ -56,10 +47,10 @@ public class SumoRestHelper {
     @PostConstruct
     public void readFromFileAndSetCredentials() {
         try {
-            readFromFile();
+//            readFromFile();
         }
         catch (Exception e){
-            log.info("There was a probelm reading in credetials from file. Perhaps its not there?");
+            log.info("There was a problem reading in credentials from file. Perhaps its not there?");
         }
     }
 
@@ -118,7 +109,7 @@ public class SumoRestHelper {
 
 
     private void readFromFile() {
-        try (BufferedReader br = new BufferedReader(new FileReader(CREDETIAL_PATH + CREDETIAL_FILE))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(CREDENTIAL_PATH + CREDENTIAL_FILE))) {
             String user = br.readLine();
             String pass = br.readLine();
             log.info("Username is " + base64Encode(user));
