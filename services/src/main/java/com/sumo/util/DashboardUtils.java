@@ -17,16 +17,18 @@ public class DashboardUtils {
 
 	public List<DashboardVO> buildDashboards(GetDashboardsResponse dashboardsResponse) {
 		List<DashboardVO> dashboardVOs = new ArrayList<>();
-		dashboardsResponse.getDashboards().parallelStream().forEach(dashboard -> {
-			DashboardVO dashboardVO = new DashboardVO(dashboard);
-			List<Monitor> monitors = new ArrayList<>();
-			dashboard.getDashboardMonitors().parallelStream().forEach(dashboardMonitor -> {
-				Monitor monitor = new Monitor(dashboardMonitor);
-				monitors.add(monitor);
-			});
-			dashboardVO.setMonitors(monitors);
-			dashboardVOs.add(dashboardVO);
-		});
+		dashboardsResponse.getDashboards().parallelStream()
+				.filter(dashboard -> dashboard.getDashboardMonitors() != null && dashboard.getDashboardMonitors().size() > 0)
+				.forEach(dashboard -> {
+					DashboardVO dashboardVO = new DashboardVO(dashboard);
+					List<Monitor> monitors = new ArrayList<>();
+					dashboard.getDashboardMonitors().parallelStream().forEach(dashboardMonitor -> {
+						Monitor monitor = new Monitor(dashboardMonitor);
+						monitors.add(monitor);
+					});
+					dashboardVO.setMonitors(monitors);
+					dashboardVOs.add(dashboardVO);
+				});
 		return dashboardVOs;
 	}
 }

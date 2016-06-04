@@ -31,7 +31,7 @@ public class QueryController {
     }
 
 
-    @RequestMapping(value = "/auth/new", method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<String> performAsyncQuery(@RequestHeader("username") String username, @RequestHeader("password") String password, @RequestBody SumoQueryRequest sumoQueryRequest) {
         log.info("Base 64 encoded username is : " + username);
         log.info("I got a request for " + sumoQueryRequest.getQueryString() + " and start time of " + sumoQueryRequest.getStartTime());
