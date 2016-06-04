@@ -1,6 +1,7 @@
 package com.sumo.rest;
 
 import com.sumo.model.SumoQueryRequest;
+import com.sumo.model.SumoQueryResponse;
 import com.sumologic.client.model.LogMessage;
 import com.sumologic.client.model.SearchResponse;
 import lombok.extern.java.Log;
@@ -32,13 +33,29 @@ public class ApplicationRestController {
         return new ResponseEntity<HashMap>(transformResponse(searchResponse), HttpStatus.OK);
 
     }
+    @RequestMapping(value = "/query/{requestId}", method = RequestMethod.GET)
+    public Map<String, String> performQuery(@PathVariable String requestId){
+        log.info("I got a request for id " + requestId);
+        SumoQueryResponse searchResponse = sumoRestHelper.returnRequestBasedOnID(requestId);
+        return  searchResponse.getReturnValues();
+
+    }
     @RequestMapping(value = "/query/auth", method = RequestMethod.POST)
     public ResponseEntity<HashMap> performQueryWithHeaders(@RequestHeader("username") String usernanme, @RequestHeader("password")String password, @RequestBody SumoQueryRequest sumoQueryRequest){
-
         log.info("Base 64 encoded username is : " + usernanme);
         log.info("I got a request for " + sumoQueryRequest.getQueryString() + " and start time of " + sumoQueryRequest.getStartTime());
         SearchResponse searchResponse = sumoRestHelper.performSearch(sumoQueryRequest, usernanme, password);
         return new ResponseEntity<HashMap>(transformResponse(searchResponse), HttpStatus.OK);
+
+    }
+
+
+    @RequestMapping(value = "/query/auth/new", method = RequestMethod.POST)
+    public ResponseEntity<String> performQueryWithHeadersCache(@RequestHeader("username") String usernanme, @RequestHeader("password")String password, @RequestBody SumoQueryRequest sumoQueryRequest){
+        log.info("Base 64 encoded username is : " + usernanme);
+        log.info("I got a request for " + sumoQueryRequest.getQueryString() + " and start time of " + sumoQueryRequest.getStartTime());
+        String id = sumoRestHelper.performSearchAsync(sumoQueryRequest, usernanme, password);
+        return new ResponseEntity<String>(id, HttpStatus.OK);
 
     }
 
@@ -59,4 +76,7 @@ public class ApplicationRestController {
     public Date now(){
         return new Date();
     }
+
+
+
 }

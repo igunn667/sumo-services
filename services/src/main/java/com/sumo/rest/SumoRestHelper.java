@@ -1,6 +1,9 @@
 package com.sumo.rest;
 
 import com.sumo.model.SumoQueryRequest;
+import com.sumo.model.SumoQueryResponse;
+import com.sumo.util.AsyncSumoCaller;
+import com.sumo.util.SumoCacheUtil;
 import com.sumologic.client.SumoLogicClient;
 import com.sumologic.client.collectors.model.GetCollectorsResponse;
 import com.sumologic.client.model.SearchRequest;
@@ -9,8 +12,12 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.java.Log;
 import org.apache.commons.codec.binary.Base64;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.config.annotation.AsyncSupportConfigurer;
 
 import javax.annotation.PostConstruct;
 import javax.naming.directory.SearchResult;
@@ -21,6 +28,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.Executor;
 
 /**
  * Created by iangunn on 5/24/16.
@@ -36,6 +44,14 @@ public class SumoRestHelper {
     private final String CREDETIAL_PATH = "src/main/resources/";
     private final String CREDETIAL_FILE = "credetials.txt";
     private SumoLogicClient sumoLogicClient;
+
+    @Autowired
+    AsyncSumoCaller sumoCaller;
+
+    @Autowired
+    SumoCacheUtil cache;
+
+
 
     @PostConstruct
     public void readFromFileAndSetCredentials() {
@@ -55,6 +71,14 @@ public class SumoRestHelper {
             return this.performSearch(sumoQueryRequest.getQueryString(), sumoQueryRequest.getStartTime());
         }
         return this.performSearch(sumoQueryRequest.getQueryString(), sumoQueryRequest.getStartTime(),new Date());
+    }
+
+    public String performSearchAsync(SumoQueryRequest sumoQueryRequest, String hashedUsername, String hashedPassword){
+        SumoLogicClient client = new SumoLogicClient(base64Decode(hashedUsername), base64Decode(hashedPassword));
+        sumoQueryRequest.setId(UUID.randomUUID().toString().replace("-",""));
+        sumoCaller.performAndCacheQuery(client, sumoQueryRequest);
+        return sumoQueryRequest.getId();
+
     }
 
 
@@ -83,7 +107,11 @@ public class SumoRestHelper {
         searchRequest.setFromTime(date);
         return sumoLogicClient.search(searchRequest);
 
+    }
 
+
+    public SumoQueryResponse returnRequestBasedOnID(String requestId) {
+        return cache.getObjectFromCache(requestId);
     }
 
 
@@ -115,4 +143,6 @@ public class SumoRestHelper {
         String decodedString = new String(array);
         return decodedString;
     }
+
+
 }

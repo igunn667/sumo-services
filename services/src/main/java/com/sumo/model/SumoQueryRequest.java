@@ -8,7 +8,7 @@ import java.util.Date;
  */
 @Data
 public class SumoQueryRequest {
-
+    String id;
     String queryString;
     Date startTime;
     Date endtime;
