@@ -29,11 +29,11 @@ public class DashboardService extends SumoRestHelper {
 		SumoLogicClient sumoLogicClient = new SumoLogicClient(base64Decode(hashedUsername), base64Decode(hashedPassword));
 		GetDashboardsResponse dashboards = sumoLogicClient.getDashboards(true);
 		List<DashboardVO> dashboardVOs = dashboardUtils.buildDashboards(dashboards);
-		for (DashboardVO dashboardVO : dashboardVOs) {
-			for (Monitor monitor : dashboardVO.getMonitors()) {
-				monitorMap.put(monitor.getId(), monitor);
-			}
-		}
+
+		dashboardVOs.parallelStream().forEach(dashboardVO ->
+				dashboardVO.getMonitors().parallelStream().forEach(monitor ->
+						monitorMap.put(monitor.getId(), monitor)));
+
 		return dashboardVOs;
 	}
 
