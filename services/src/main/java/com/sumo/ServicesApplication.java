@@ -12,7 +12,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @ComponentScan
 @EnableScheduling
 @EnableAsync
-
 public class ServicesApplication extends SpringBootServletInitializer {
 
 	@Override

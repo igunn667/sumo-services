@@ -19,11 +19,10 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.UUID;
 
-/**
- * Created by iangunn on 5/24/16.
- */
 @Service
 @Log
 @Getter
@@ -43,52 +42,49 @@ public class SumoRestHelper {
     SumoCacheUtil cache;
 
 
-
     @PostConstruct
     public void readFromFileAndSetCredentials() {
         try {
 //            readFromFile();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             log.info("There was a problem reading in credentials from file. Perhaps its not there?");
         }
     }
 
-    public SearchResponse performSearch(SumoQueryRequest sumoQueryRequest){
-        if(sumoQueryRequest.getEndtime() == null){
-            if(sumoQueryRequest.getStartTime() == null){
+    public SearchResponse performSearch(SumoQueryRequest sumoQueryRequest) {
+        if (sumoQueryRequest.getEndtime() == null) {
+            if (sumoQueryRequest.getStartTime() == null) {
                 sumoQueryRequest.setStartTime(new Date());
             }
             return this.performSearch(sumoQueryRequest.getQueryString(), sumoQueryRequest.getStartTime());
         }
-        return this.performSearch(sumoQueryRequest.getQueryString(), sumoQueryRequest.getStartTime(),new Date());
+        return this.performSearch(sumoQueryRequest.getQueryString(), sumoQueryRequest.getStartTime(), new Date());
     }
 
-    public String performSearchAsync(SumoQueryRequest sumoQueryRequest, String hashedUsername, String hashedPassword){
+    public String performSearchAsync(SumoQueryRequest sumoQueryRequest, String hashedUsername, String hashedPassword) {
         SumoLogicClient client = new SumoLogicClient(base64Decode(hashedUsername), base64Decode(hashedPassword));
-        sumoQueryRequest.setId(UUID.randomUUID().toString().replace("-",""));
+        sumoQueryRequest.setId(UUID.randomUUID().toString().replace("-", ""));
         sumoCaller.performAndCacheQuery(client, sumoQueryRequest);
         return sumoQueryRequest.getId();
 
     }
 
-
-    public SearchResponse performSearch(SumoQueryRequest sumoQueryRequest, String hashedUsername, String hashedPassword){
+    public SearchResponse performSearch(SumoQueryRequest sumoQueryRequest, String hashedUsername, String hashedPassword) {
         this.sumoLogicClient = new SumoLogicClient(base64Decode(hashedUsername), base64Decode(hashedPassword));
-        if(sumoQueryRequest.getEndtime() == null){
-            if(sumoQueryRequest.getStartTime() == null){
+        if (sumoQueryRequest.getEndtime() == null) {
+            if (sumoQueryRequest.getStartTime() == null) {
                 sumoQueryRequest.setStartTime(new Date());
             }
             return this.performSearch(sumoQueryRequest.getQueryString(), sumoQueryRequest.getStartTime());
         }
-        return this.performSearch(sumoQueryRequest.getQueryString(), sumoQueryRequest.getStartTime(),new Date());
+        return this.performSearch(sumoQueryRequest.getQueryString(), sumoQueryRequest.getStartTime(), new Date());
     }
 
-    public SearchResponse performSearch(String query, Date start){
+    public SearchResponse performSearch(String query, Date start) {
         return this.performSearch(query, start, new Date());
     }
 
-    public SearchResponse performSearch(String query, Date start, Date end){
+    public SearchResponse performSearch(String query, Date start, Date end) {
         SearchRequest searchRequest = new SearchRequest();
         searchRequest.setQuery(query);
         searchRequest.setFromTime(start);
@@ -106,8 +102,6 @@ public class SumoRestHelper {
     }
 
 
-
-
     private void readFromFile() {
         try (BufferedReader br = new BufferedReader(new FileReader(CREDENTIAL_PATH + CREDENTIAL_FILE))) {
             String user = br.readLine();
@@ -123,13 +117,13 @@ public class SumoRestHelper {
     }
 
 
-    public String base64Encode(String string){
+    public String base64Encode(String string) {
         byte[] array = Base64.encodeBase64(string.getBytes());
         String encodedString = new String(array);
         return encodedString;
     }
 
-    public String base64Decode(String string){
+    public String base64Decode(String string) {
         byte[] array = Base64.decodeBase64(string.getBytes());
         String decodedString = new String(array);
         return decodedString;

@@ -11,9 +11,6 @@ import org.springframework.stereotype.Service;
 import java.util.Calendar;
 import java.util.Date;
 
-/**
- * Created by iangunn on 6/3/16.
- */
 @Service
 public class AsyncSumoCaller {
 
