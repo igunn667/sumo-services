@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -34,7 +35,7 @@ public class ApplicationRestController {
 
     }
     @RequestMapping(value = "/query/{requestId}", method = RequestMethod.GET)
-    public Map<String, String> performQuery(@PathVariable String requestId){
+    public Map<String, String> performQueryForID(@PathVariable String requestId){
         log.info("I got a request for id " + requestId);
         SumoQueryResponse searchResponse = sumoRestHelper.returnRequestBasedOnID(requestId);
         return  searchResponse.getReturnValues();
@@ -55,7 +56,7 @@ public class ApplicationRestController {
         log.info("Base 64 encoded username is : " + usernanme);
         log.info("I got a request for " + sumoQueryRequest.getQueryString() + " and start time of " + sumoQueryRequest.getStartTime());
         String id = sumoRestHelper.performSearchAsync(sumoQueryRequest, usernanme, password);
-        return new ResponseEntity<String>(id, HttpStatus.OK);
+        return new ResponseEntity<String>(buildUrl(id), HttpStatus.OK);
 
     }
 
@@ -70,6 +71,11 @@ public class ApplicationRestController {
         }
         return returnMap;
 
+    }
+
+    private String buildUrl(String id){
+        return MvcUriComponentsBuilder.fromMethodName(ApplicationRestController.class, "performQueryForID", id)
+                .buildAndExpand().toUriString();
     }
 
     @RequestMapping(value = "date")
