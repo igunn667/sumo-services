@@ -1,4 +1,4 @@
-package com.sumo.rest;
+package com.sumo.services;
 
 import com.sumo.model.dashboard.DashboardVO;
 import com.sumo.model.dashboard.Monitor;
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service(value = "singleton")
-public class DashboardService extends SumoRestHelper {
+public class DashboardService extends QueryService {
 	@Autowired
 	DashboardUtils dashboardUtils;
 

@@ -8,9 +8,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Created by iangunn on 6/3/16.
- */
 @Data
 public class SumoQueryResponse {
 
@@ -24,7 +21,7 @@ public class SumoQueryResponse {
         this.returnValues = transformResponse(response);
     }
 
-    public HashMap<String, String> transformResponse(SearchResponse searchResponse){
+    private HashMap<String, String> transformResponse(SearchResponse searchResponse){
         HashMap<String,String> returnMap = new HashMap<>();
         for(LogMessage message : searchResponse.getMessages()){
             message.getProperties().keySet().parallelStream()

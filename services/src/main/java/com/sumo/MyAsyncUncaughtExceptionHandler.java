@@ -5,9 +5,6 @@ import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Method;
 
-/**
- * Created by iangunn on 6/3/16.
- */
 @Service
 public class MyAsyncUncaughtExceptionHandler implements AsyncUncaughtExceptionHandler {
     @Override

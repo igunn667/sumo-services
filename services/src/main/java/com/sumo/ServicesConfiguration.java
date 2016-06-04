@@ -7,7 +7,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.Executor;
 
-
 @Configuration
 @EnableCaching
 public class ServicesConfiguration {
@@ -22,6 +21,4 @@ public class ServicesConfiguration {
         executor.initialize();
         return executor;
     }
-
-
 }

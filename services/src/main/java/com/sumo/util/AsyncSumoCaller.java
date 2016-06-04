@@ -30,9 +30,8 @@ public class AsyncSumoCaller {
             SearchResponse response = client.search(searchRequest);
             sumoCacheUtil.putObjectIntoCache(response, sumoQueryRequest.getId());
         }
-        catch (Exception e){
+        catch (Exception ignored){
 
         }
-        boolean t = false;
     }
 }
